@@ -18,7 +18,7 @@ files.
 
 - [x] Sort open files
 - [x] Group open files by language
-- [ ] Highlight active file when switching files outside the open files tree view
+- [x] Highlight active file when switching files outside the open files tree view
 - [ ] User options to sort by different fields
 - [ ] User options to group by different fields
 - [ ] Configurable groups (by regex), eg. sort by pattern (models, controllers, ..)

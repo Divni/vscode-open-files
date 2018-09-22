@@ -124,14 +124,22 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 
 	onChangeTextEditor(textEditor: vscode.TextEditor): void {
 		this.lastOnChange = Math.floor(Date.now() / 1000);
+
 		let textDoc = textEditor.document;
+
+		let exists = false;
 		for (let d of this.textDocuments) {
 			if (d.uri === textDoc.uri) {
-				return;
+				exists = true;
 			}
 		}
-		this.textDocuments.push(textEditor.document);
+
+		if ( ! exists) {
+			this.textDocuments.push(textEditor.document);
+		}
+
 		this.refreshTree();
+		this.treeView.reveal(textEditor.document);
 	}
 
 	async cycleThroughEditorsAfterDelay(msec: number): Promise<void> {
@@ -191,7 +199,15 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 		return result;
 	}
 
-	getTreeItem(element: TreeItemFile | TreeItemGroup): vscode.TreeItem {
-		return element;
+	getTreeItem(element: TreeItemFile | TreeItemGroup | vscode.TextDocument): vscode.TreeItem {
+		if (element instanceof vscode.TreeItem) {
+			return <vscode.TreeItem>element;
+		} else {
+			return new TreeItemFile(<vscode.TextDocument>element);
+		}
+	}
+
+	getParent(element: TreeItemFile | TreeItemGroup): TreeItemFile | TreeItemGroup {
+		return null;
 	}
 }
