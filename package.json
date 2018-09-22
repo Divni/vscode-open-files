@@ -11,16 +11,73 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onView:openFiles"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "command": "extension.openfiles.closeAll",
+                "title": "Close All",
+                "icon": {
+                    "light": "resources/closeall.svg",
+                    "dark": "resources/closeall_inverse.svg"
+                }
+            },
+            {
+                "command": "extension.openfiles.refresh",
+                "title": "Refresh"
+            },
+            {
+                "command": "extension.openfiles.close",
+                "title": "Close",
+                "icon": {
+                    "light": "resources/action-close.svg",
+                    "dark": "resources/action-close-dark.svg"
+                }
+            },
+            {
+                "command": "extension.openfiles.closeGroup",
+                "title": "Close Group",
+                "icon": {
+                    "light": "resources/closeall.svg",
+                    "dark": "resources/closeall_inverse.svg"
+                }
             }
-        ]
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "openFiles",
+                    "name": "Open Files"
+                }
+            ]
+        },
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "extension.openfiles.close",
+                    "when": "view == openFiles && viewItem == file",
+                    "group": "inline"
+                },
+                {
+                    "command": "extension.openfiles.closeGroup",
+                    "when": "view == openFiles && viewItem == group",
+                    "group": "inline"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "extension.openfiles.closeAll",
+                    "when": "view == openFiles",
+                    "group": "navigation"
+                },
+                {
+                    "command": "extension.openfiles.refresh",
+                    "when": "view == openFiles"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
