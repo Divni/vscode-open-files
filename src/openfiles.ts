@@ -11,8 +11,8 @@ class TreeItemFile extends vscode.TreeItem {
 		public readonly document: vscode.TextDocument
 	) {
 		super(document.uri, vscode.TreeItemCollapsibleState.None);
-		this.label = path.basename(this.document.uri.toString());
-		this.dirname = path.dirname(this.document.uri.toString());
+		this.label = path.basename(this.document.uri.path);
+		this.dirname = path.dirname(this.document.uri.path);
 	}
 
 	contextValue: string = 'file';

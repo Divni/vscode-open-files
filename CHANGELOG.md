@@ -3,6 +3,7 @@
 ## [0.0.3]
 
 - Fixed closed tabs sometimes not removing from the Open Files widget
+- Fixed some filenames showing weird prefixes (eg. Untitled files)
 
 ## [0.0.2]
 
