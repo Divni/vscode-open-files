@@ -3,7 +3,7 @@
     "displayName": "Open Files (Alpha)",
     "description": "A powerful alternative to the Open Editors widget. Showing sorted and grouped open files.",
     "icon": "icon.png",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "Divni",
     "repository": {
         "type": "git",
