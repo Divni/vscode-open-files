@@ -1,9 +1,10 @@
 {
     "name": "open-files",
     "displayName": "Open Files",
-    "description": "",
-    "version": "0.0.1",
-    "publisher": "***REMOVED***",
+    "description": "A powerful alternative to the Open Editors widget. Showing sorted and grouped open files.",
+    "version": "0.0.2",
+    "publisher": "Divni",
+    "repository": "github:Divni/vscode-open-files",
     "engines": {
         "vscode": "^1.27.0"
     },
