@@ -5,8 +5,6 @@ import * as mkdirp from 'mkdirp';
 import * as rimraf from 'rimraf';
 import { window, commands, Disposable, Command, workspace } from 'vscode';
 
-var openFiles: OpenFiles;
-
 class TreeItemFile extends vscode.TreeItem {
 
 	constructor(
@@ -15,7 +13,6 @@ class TreeItemFile extends vscode.TreeItem {
 		super(document.uri, vscode.TreeItemCollapsibleState.None);
 		this.label = path.basename(this.document.uri.toString());
 		this.dirname = path.dirname(this.document.uri.toString());
-		console.log(document);
 	}
 
 	contextValue: string = 'file';
@@ -35,7 +32,6 @@ class TreeItemFile extends vscode.TreeItem {
 		(async () => {
 			await vscode.window.showTextDocument(this.document);
 			commands.executeCommand('workbench.action.closeActiveEditor');
-			openFiles.refresh();
 		})();
 	}
 }
@@ -62,18 +58,23 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 	private _onDidChangeTreeData: vscode.EventEmitter<TreeItemFile | TreeItemGroup | undefined> = new vscode.EventEmitter<TreeItemFile | TreeItemGroup | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<TreeItemFile | TreeItemGroup | undefined> = this._onDidChangeTreeData.event;
 
+	private textDocuments: vscode.TextDocument[] = [];
+
+	private lastOnChange: number = 0;
+
 	private treeView: vscode.TreeView<{}>;
 
 	constructor(context: vscode.ExtensionContext) {
-		openFiles = this;
-
 		let subscriptions: Disposable[] = [];
-		window.onDidChangeActiveTextEditor(this.onChangeEditor, this, subscriptions);
+
+		workspace.onDidCloseTextDocument(this.onCloseTextDocument, this, subscriptions);
+		window.onDidChangeActiveTextEditor(this.onChangeTextEditor, this, subscriptions);
 
 		// Register commands
 		context.subscriptions.push.apply(context.subscriptions, [
 
 			commands.registerCommand('extension.openfiles.SelectItem', (document: vscode.TextDocument) => {
+				console.log(document);
 				window.showTextDocument(document);
 			}),
 
@@ -110,7 +111,26 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 		this._onDidChangeTreeData.fire();
 	}
 
-	onChangeEditor(editor?: vscode.TextEditor): void {
+	onCloseTextDocument(textDoc: vscode.TextDocument): void {
+		let now = Math.floor(Date.now() / 1000);
+		if ((now - this.lastOnChange) > 200) {
+			return;
+		}
+
+		this.textDocuments = this.textDocuments.filter((d) => d.uri !== textDoc.uri);
+
+		this.refreshTree();
+	}
+
+	onChangeTextEditor(textEditor: vscode.TextEditor): void {
+		this.lastOnChange = Math.floor(Date.now() / 1000);
+		let textDoc = textEditor.document;
+		for (let d of this.textDocuments) {
+			if (d.uri === textDoc.uri) {
+				return;
+			}
+		}
+		this.textDocuments.push(textEditor.document);
 		this.refreshTree();
 	}
 
@@ -138,8 +158,8 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 		}
 
 		let result: (TreeItemFile | TreeItemGroup)[] = [];
-		for (let document of workspace.textDocuments) {
-			if (document.uri.scheme === "git" || document.uri.scheme === "vscode") {
+		for (let document of this.textDocuments) {
+			if (document.uri.scheme === "git" || document.uri.scheme === "vscode" || document.isClosed) {
 				continue; 
 			}
 			result.push(new TreeItemFile(document));
