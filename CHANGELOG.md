@@ -4,6 +4,7 @@
 
 - Groups are now collapsible
 - Fixed tree redrawing too often
+- Wrote some very basic tests to do some testing
 
 ## [0.0.3]
 

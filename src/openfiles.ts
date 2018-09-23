@@ -5,7 +5,7 @@ import * as mkdirp from 'mkdirp';
 import * as rimraf from 'rimraf';
 import { window, commands, Disposable, Command, workspace } from 'vscode';
 
-class TreeItemFile extends vscode.TreeItem {
+export class TreeItemFile extends vscode.TreeItem {
 
 	constructor(
 		public readonly document: vscode.TextDocument
@@ -36,7 +36,7 @@ class TreeItemFile extends vscode.TreeItem {
 	}
 }
 
-class TreeItemGroup extends vscode.TreeItem {
+export class TreeItemGroup extends vscode.TreeItem {
 	constructor(
 		public readonly label: string
 	) {
@@ -64,14 +64,22 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 
 	private treeView: vscode.TreeView<{}>;
 
-	constructor(context: vscode.ExtensionContext) {
+	constructor(private context?: vscode.ExtensionContext) {
 		let subscriptions: Disposable[] = [];
 
 		workspace.onDidCloseTextDocument(this.onCloseTextDocument, this, subscriptions);
 		window.onDidChangeActiveTextEditor(this.onChangeTextEditor, this, subscriptions);
 
-		// Register commands
-		context.subscriptions.push.apply(context.subscriptions, [
+		this.registerCommands();
+
+		// Start cycle after 2 seconds because our onChange listener above doesn't instantly run
+		this.cycleThroughEditorsAfterDelay(2000);
+
+		this.treeView = vscode.window.createTreeView('openFiles', { treeDataProvider: this });
+	}
+
+	registerCommands(): void {
+		this.context.subscriptions.push.apply(this.context.subscriptions, [
 
 			commands.registerCommand('extension.openfiles.SelectItem', (document: vscode.TextDocument) => {
 				console.log(document);
@@ -96,11 +104,6 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 				})();
 			})
 		]);
-
-		// Start cycle after 2 seconds because our onChange listener above doesn't instantly run
-		this.cycleThroughEditorsAfterDelay(2000);
-
-		this.treeView = vscode.window.createTreeView('openFiles', { treeDataProvider: this });
 	}
 
 	refresh(): void {
