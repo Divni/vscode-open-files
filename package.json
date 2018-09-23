@@ -1,9 +1,9 @@
 {
     "name": "open-files",
-    "displayName": "Open Files (Alpha)",
+    "displayName": "Open Files (Beta)",
     "description": "A powerful alternative to the Open Editors widget. Showing sorted and grouped open files.",
     "icon": "icon.png",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "Divni",
     "repository": {
         "type": "git",
