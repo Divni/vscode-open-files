@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.4]
+
+- Groups are now collapsible
+
 ## [0.0.3]
 
 - Relevant file is now highlighted when switching tabs
