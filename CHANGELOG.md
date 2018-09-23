@@ -3,6 +3,7 @@
 ## [0.0.4]
 
 - Groups are now collapsible
+- Fixed tree redrawing too often
 
 ## [0.0.3]
 

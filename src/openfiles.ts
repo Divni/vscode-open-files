@@ -117,9 +117,12 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 			return;
 		}
 
+		var before = this.textDocuments.length;
 		this.textDocuments = this.textDocuments.filter((d) => d.uri !== textDoc.uri);
 
-		this.refreshTree();
+		if (before !== this.textDocuments.length) {
+			this.refreshTree();
+		}
 	}
 
 	onChangeTextEditor(textEditor: vscode.TextEditor): void {
@@ -136,9 +139,9 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 
 		if ( ! exists) {
 			this.textDocuments.push(textEditor.document);
+			this.refreshTree();
 		}
 
-		this.refreshTree();
 		this.treeView.reveal(textEditor.document);
 	}
 
