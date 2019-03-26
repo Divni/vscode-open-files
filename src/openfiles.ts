@@ -11,7 +11,7 @@ export class TreeItemFile extends vscode.TreeItem {
 		public readonly unique: boolean
 	) {
 		super(document.uri, vscode.TreeItemCollapsibleState.None);
-		this.id = document.uri
+		this.id = document.uri.path
 		this.label = path.basename(this.document.uri.path);
 		this.dirname = path.dirname(this.document.uri.path);
 		if (!unique) this.label += ` – ${path.basename(this.dirname)}`;
@@ -210,7 +210,7 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 			documentsByName[name].push(document)
 		}
 
-		for (const [name, documents] of Object.entries(documentsByName)) {
+		for (const [name, documents] of (<any>Object).entries(documentsByName)) {
 			for (const document of documents) {
 				if (document.languageId !== group.label || document.isClosed) {
 					continue;
