@@ -2,24 +2,26 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
-import * as rimraf from 'rimraf';
 import { window, commands, Disposable, Command, workspace } from 'vscode';
 
 export class TreeItemFile extends vscode.TreeItem {
 
 	constructor(
-		public readonly document: vscode.TextDocument
+		public readonly document: vscode.TextDocument,
+		public readonly unique: boolean
 	) {
 		super(document.uri, vscode.TreeItemCollapsibleState.None);
+		this.id = document.uri.path
 		this.label = path.basename(this.document.uri.path);
 		this.dirname = path.dirname(this.document.uri.path);
+		if (!unique) this.label += ` – ${path.basename(this.dirname)}`;
 	}
 
 	contextValue: string = 'file';
 	label: string = '';
 	dirname: string = '';
 	ext: string = '';
-	
+
 	get command(): Command {
 		return {
 			command: 'extension.openfiles.SelectItem',
@@ -82,7 +84,6 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 		this.context.subscriptions.push.apply(this.context.subscriptions, [
 
 			commands.registerCommand('extension.openfiles.SelectItem', (document: vscode.TextDocument) => {
-				console.log(document);
 				window.showTextDocument(document);
 			}),
 
@@ -201,13 +202,23 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 
 	async getChildrenFromGroup(group: TreeItemGroup): Promise<(TreeItemFile)[]> {
 		let result: TreeItemFile[] = [];
-		for (let document of this.textDocuments) {
-			if (document.languageId !== group.label || document.isClosed) {
-				continue; 
+
+		const documentsByName = {};
+		for (const document of this.textDocuments) {
+			const name = path.basename(document.uri.path);
+			if (!documentsByName[name]) documentsByName[name] = []
+			documentsByName[name].push(document)
+		}
+
+		for (const [name, documents] of (<any>Object).entries(documentsByName)) {
+			for (const document of documents) {
+				if (document.languageId !== group.label || document.isClosed) {
+					continue;
+				}
+				let item = new TreeItemFile(document, documents.length === 1);
+				group.items.push(item);
+				result.push(item);
 			}
-			let item = new TreeItemFile(document);
-			group.items.push(item);
-			result.push(item);
 		}
 
 		result = result.sort((left, right) => {
@@ -225,7 +236,7 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 		if (element instanceof vscode.TreeItem) {
 			return <vscode.TreeItem>element;
 		} else {
-			return new TreeItemFile(<vscode.TextDocument>element);
+			return new TreeItemFile(<vscode.TextDocument>element, true);
 		}
 	}
 
