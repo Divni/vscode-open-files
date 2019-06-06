@@ -144,8 +144,6 @@ export class OpenFiles implements vscode.TreeDataProvider<TreeItemFile|TreeItemG
 			this.textDocuments.push(textEditor.document);
 			this.refreshTree();
 		}
-
-		this.treeView.reveal(textEditor.document);
 	}
 
 	async cycleThroughEditorsAfterDelay(msec: number): Promise<void> {
